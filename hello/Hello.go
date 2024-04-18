@@ -6,13 +6,9 @@ import (
 	"time"
 )
 
-type CustomTime struct {
-	time.Time
-}
-
-func (ct CustomTime) MarshalJSON() ([]byte, error) {
-	formatted := []byte("\"date: " + ct.Format("02.01.2006") + ", time: " + ct.Format("15:04") + "\"")
-	return formatted, nil
+type TimeResponse struct {
+	Date string `json:"date"`
+	Time string `json:"time"`
 }
 
 func getOk(w http.ResponseWriter, r *http.Request) {
@@ -23,7 +19,12 @@ func getTime(w http.ResponseWriter, r *http.Request) {
 	currentTime := time.Now().UTC()
 	currentTime = currentTime.Add(3 * time.Hour)
 
-	jsonResponse, err := json.Marshal(CustomTime{currentTime})
+	timeResponse := TimeResponse{
+		Date: currentTime.Format("02.01.2006"),
+		Time: currentTime.Format("15:04"),
+	}
+
+	jsonResponse, err := json.Marshal(timeResponse)
 	if err != nil {
 		http.Error(w, "Failed to generate JSON response", http.StatusInternalServerError)
 		return
